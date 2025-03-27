@@ -1,10 +1,10 @@
 "use client"
 
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { sendToTelegram } from "@/lib/send-telegram-bot"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 
 const courses = [
   "Ingliz tili",
@@ -53,6 +53,41 @@ export default function RegistrationForm() {
       window.removeEventListener("resize", checkMobile)
     }
   }, [])
+
+  // New phone number formatting function
+  const formatPhoneNumber = (input) => {
+    // Remove all non-digit characters
+    const digitsOnly = input.replace(/\D/g, "")
+
+    // Limit to 9 digits
+    const trimmedDigits = digitsOnly.slice(0, 9)
+
+    // Format phone number
+    if (trimmedDigits.length <= 2) {
+      return trimmedDigits
+    } else if (trimmedDigits.length <= 5) {
+      return `${trimmedDigits.slice(0, 2)} ${trimmedDigits.slice(2)}`
+    } else if (trimmedDigits.length <= 7) {
+      return `${trimmedDigits.slice(0, 2)} ${trimmedDigits.slice(2, 5)} ${trimmedDigits.slice(5)}`
+    } else {
+      return `${trimmedDigits.slice(0, 2)} ${trimmedDigits.slice(2, 5)} ${trimmedDigits.slice(5, 7)} ${trimmedDigits.slice(7)}`
+    }
+  }
+
+  const handlePhoneChange = (e) => {
+    const formattedPhone = formatPhoneNumber(e.target.value)
+
+    setFormData((prev) => ({ ...prev, phone: formattedPhone }))
+
+    // Clear error when user types
+    if (errors.phone) {
+      setErrors((prev) => {
+        const newErrors = { ...prev }
+        delete newErrors.phone
+        return newErrors
+      })
+    }
+  }
 
   const handleChange = (e) => {
     const { id, value } = e.target
@@ -118,15 +153,15 @@ export default function RegistrationForm() {
         ...formData,
         phone: "+998 " + formData.phone,
       })
+      toast.success("O'quvchi ma'lumotlari muvaffaqiyatli yuborildi!")
       router.push("/success")
     } catch (error) {
       console.error("Xatolik yuz berdi:", error)
-      alert("Ma'lumotlarni yuborishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
+      toast.error("Ma'lumotlarni yuborishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.")
     } finally {
       setIsSubmitting(false)
     }
   }
-
   // Mobile step-by-step form
   if (isMobile) {
     return (
@@ -146,13 +181,13 @@ export default function RegistrationForm() {
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
           >
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg">
-              <img src="/image.png" alt="logo" />
+            <div className="w-20 h-20 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg">
+              <img src="/image.png" alt="logo" className="rounded-full" />
             </div>
           </motion.div>
 
           <motion.h2
-            className="text-2xl font-bold text-center mb-1 text-white"
+            className="text-2xl font-bold text-center mb-1 text-black"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -161,7 +196,7 @@ export default function RegistrationForm() {
           </motion.h2>
 
           <motion.p
-            className="text-blue-100 text-center mb-8"
+            className="text-gray-600 text-center mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -404,37 +439,8 @@ export default function RegistrationForm() {
                       type="tel"
                       placeholder="90 123 45 67"
                       value={formData.phone}
-                      // onChange={(e) => {
-                      //   // Format phone number as user types
-                      //   const input = e.target.value.replace(/\D/g, "") // Remove non-digits
-                      //   let formatted = ""
-
-                      //   if (input.length > 0) {
-                      //     formatted += input.substring(0, 2)
-                      //   }
-                      //   if (input.length > 2) {
-                      //     formatted += " " + input.substring(2, 5)
-                      //   }
-                      //   if (input.length > 5) {
-                      //     formatted += " " + input.substring(5, 7)
-                      //   }
-                      //   if (input.length > 7) {
-                      //     formatted += " " + input.substring(7, 9)
-                      //   }
-
-                      //   setFormData((prev) => ({ ...prev, phone: formatted }))
-
-                      //   // Clear error when user types
-                      //   if (errors.phone) {
-                      //     setErrors((prev) => {
-                      //       const newErrors = { ...prev }
-                      //       delete newErrors.phone
-                      //       return newErrors
-                      //     })
-                      //   }
-                      // }}
+                      onChange={handlePhoneChange}
                       className={`w-full px-4 py-3 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition pl-16 ${errors.phone ? "border-red-500" : "border-gray-300"}`}
-                      // maxLength  ={11} // 2 + 3 + 2 + 2 + 2 spaces
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Misol: 90 123 45 67 (9 ta raqam)</p>
@@ -782,37 +788,8 @@ export default function RegistrationForm() {
                   type="tel"
                   placeholder="90 123 45 67"
                   value={formData.phone}
-                  onChange={(e) => {
-                    // Format phone number as user types
-                    const input = e.target.value.replace(/\D/g, "") // Remove non-digits
-                    let formatted = ""
-
-                    // if (input.length > 0) {
-                    //   formatted += input.substring(0, 2)
-                    // }
-                    // if (input.length > 2) {
-                    //   formatted += " " + input.substring(2, 5)
-                    // }
-                    // if (input.length > 5) {
-                    //   formatted += " " + input.substring(5, 7)
-                    // }
-                    // if (input.length > 7) {
-                    //   formatted += " " + input.substring(7, 9)
-                    // }
-
-                    setFormData((prev) => ({ ...prev, phone: input }))
-
-                    // Clear error when user types
-                    if (errors.phone) {
-                      setErrors((prev) => {
-                        const newErrors = { ...prev }
-                        delete newErrors.phone
-                        return newErrors
-                      })
-                    }
-                  }}
+                  onChange={handlePhoneChange}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition pl-14 ${errors.phone ? "border-red-500" : "border-gray-300"}`}
-                  maxLength={9} 
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">Misol: 90 123 45 67 (9 ta raqam)</p>
