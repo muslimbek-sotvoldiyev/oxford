@@ -181,7 +181,7 @@ export default function RegistrationForm() {
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
           >
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg">
+            <div className="w-20 h-20  rounded-full flex items-center justify-center text-blue-600 font-bold text-xl shadow-lg">
               <img src="/image.png" alt="logo" className="rounded-full" />
             </div>
           </motion.div>
